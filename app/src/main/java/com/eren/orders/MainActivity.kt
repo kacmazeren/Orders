@@ -74,9 +74,8 @@ fun Menu(){
     LazyColumn{
         items(count = menu.count(),
             itemContent = {
-             food = menu[it]
-
-                Card(modifier = Modifier
+                     food = menu[it]
+                    Card(modifier = Modifier
                     .padding(5.dp)
                     .fillMaxWidth()
                 ) {
