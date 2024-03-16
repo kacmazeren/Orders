@@ -1,5 +1,7 @@
 package com.eren.orders
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,13 +35,11 @@ import com.eren.orders.data.MenuProvider
 import com.eren.orders.model.Food
 import com.eren.orders.ui.theme.OrdersTheme
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuApp(navController: NavHostController) {
-    var food :Food
-    val orders = remember {
-        mutableStateListOf("")
-    }
+    val orders = remember { mutableStateListOf<String>() }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -49,15 +50,21 @@ fun MenuApp(navController: NavHostController) {
             Text(text = "MENU")
 
             LazyColumn {
-                items(count = MenuProvider.getFoodData().size,
-                    itemContent = {
-                        food = MenuProvider.getFoodData()[it]
+                items(count = MenuProvider.getFoodData().size) { index ->
+                    val food = MenuProvider.getFoodData()[index]
 
-                        MenuItemView(
-                            food = food,
-                            onItemClick = {orders.add(food.toString())}
-                        )
-                    })
+                    MenuItemView(
+                        food = food,
+                        onItemClick = {
+                            if (orders.contains(food.id.toString())) {
+                                orders.remove(food.id.toString())
+                            } else {
+                                orders.add(food.id.toString())
+                            }
+                        },
+                        isSelected = orders.contains(food.id.toString())
+                    )
+                }
             }
             Button(onClick = {
                 navController.navigate(route = "order_screen")
@@ -70,32 +77,28 @@ fun MenuApp(navController: NavHostController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuItemView(food: Food,
-                 onItemClick: (Food) -> Unit,
-                 modifier: Modifier = Modifier,
-
+fun MenuItemView(
+    food: Food,
+    onItemClick: () -> Unit,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier
 ) {
-    var checked by remember { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(),
         modifier = modifier,
-        onClick =  {   }
+        onClick = onItemClick
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-                Column(
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(
                 modifier = Modifier
                     .padding(5.dp)
                     .weight(1f)
             ) {
                 Text(
                     text = stringResource(food.foodName),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier,
+                    style = MaterialTheme.typography.titleMedium
                 )
-                }
+            }
             Column(
                 modifier = Modifier
                     .padding(5.dp)
@@ -103,15 +106,17 @@ fun MenuItemView(food: Food,
             ) {
                 Text(
                     text = stringResource(food.price),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
-            Checkbox(checked = checked, onCheckedChange ={isChecked ->
-                checked = isChecked} )
+            Checkbox(
+                checked = isSelected,
+                onCheckedChange = null // Checkbox burada zaten tıklamayla değişmeyecek
+            )
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun MenuPreview() {
@@ -124,6 +129,6 @@ fun MenuPreview() {
 fun MenuItemViewPreview() {
     OrdersTheme {
         MenuItemView(food= MenuProvider.getFoodData().component1(),
-        onItemClick = {})
+        isSelected = false, onItemClick = {})
     }
 }

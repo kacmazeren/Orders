@@ -9,10 +9,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.eren.orders.ui.theme.OrdersTheme
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,10 +38,14 @@ class MainActivity : ComponentActivity() {
 fun PagePasses(){
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "menu_app"){
-        composable(route = "menu_app"){
+        composable(route = "menu_app", arguments = listOf(
+            navArgument(name= "orders"){
+                type = NavType.StringArrayType
+            }
+        )){
             MenuApp(navController)
         }
-        composable(route = "order_screen"){
+        composable(route = "order_screen" , arguments = listOf()){
             OrderScreen(navController)
         }
     }
